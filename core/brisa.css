@@ -1,0 +1,36 @@
+.brisa{position:relative;display:block;width:100%;max-width:var(--b-ancho,100%);margin-inline:auto;box-sizing:border-box;
+background:var(--b-marco,#fff);border-radius:var(--b-radio,24px);overflow:hidden;box-shadow:0 18px 40px -22px rgba(15,34,38,.45)}
+.brisa > :not(.b-int):not(.b-aviso){display:none !important}
+.brisa .b-int{position:absolute;inset:calc(var(--b-hueco,8px) / 2)}
+.brisa .b-foto{position:relative;overflow:hidden;border-radius:calc(var(--b-radio,24px) * .55);background:rgba(127,127,127,.15)}
+.brisa .b-foto img{width:100% !important;height:100% !important;max-width:none !important;object-fit:cover;display:block;margin:0 !important;border:0 !important;border-radius:0 !important;box-shadow:none !important}
+.brisa .b-aviso{position:absolute;left:12px;bottom:12px;z-index:30;font:600 12px/1.3 system-ui,sans-serif;color:#fff;background:rgba(15,34,38,.8);padding:6px 10px;border-radius:999px;pointer-events:none}
+.brisa-mosaico .b-celda{position:absolute;left:0;top:0;visibility:hidden;will-change:transform,width,height}
+.brisa-mosaico .b-celda .b-foto{position:absolute;inset:calc(var(--b-hueco,8px) / 2)}
+.brisa-marea .b-int{display:flex;flex-direction:column;justify-content:center;gap:var(--b-hueco,8px);inset:var(--b-hueco,8px) 0}
+.brisa-marea .b-fila{flex:1;min-height:0;overflow:hidden}
+.brisa-marea .b-pista{display:flex;gap:var(--b-hueco,8px);height:100%;width:max-content;will-change:transform}
+.brisa-marea .b-foto{height:100%;flex:none}
+.brisa-marea .b-foto img{width:auto !important;height:100% !important}
+.brisa-persianas .b-int{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--b-hueco,8px);inset:var(--b-hueco,8px)}
+.brisa-persianas .b-col{overflow:hidden;min-height:0;border-radius:calc(var(--b-radio,24px) * .55)}
+.brisa-persianas .b-pista{display:flex;flex-direction:column;gap:var(--b-hueco,8px);will-change:transform}
+.brisa-persianas .b-foto img{height:auto !important}
+.brisa-baraja{background:transparent;box-shadow:none}
+.brisa-baraja .b-int{inset:9% 14% 4%}
+.brisa-baraja .b-carta{position:absolute;inset:0;padding:7px;box-sizing:border-box;background:var(--b-marco,#fff);border-radius:calc(var(--b-radio,24px) * .8);box-shadow:0 18px 40px -22px rgba(15,34,38,.5);transition:transform 1.4s cubic-bezier(.65,0,.35,1),opacity 1.4s cubic-bezier(.65,0,.35,1)}
+.brisa-baraja .b-carta .b-foto{width:100%;height:100%}
+.brisa .b-pie{position:absolute;left:22px;bottom:20px;color:#fff;font:600 12px/1.2 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.55)}
+.brisa-abanico .b-int{display:flex;gap:var(--b-hueco,8px);inset:var(--b-hueco,8px)}
+.brisa-abanico .b-panel{all:unset;position:relative;flex:1 1 0;min-width:0;cursor:pointer;overflow:hidden;border-radius:calc(var(--b-radio,24px) * .55);transition:flex-grow 1.5s cubic-bezier(.65,0,.35,1)}
+.brisa-abanico .b-panel.b-on{flex-grow:6}
+.brisa-abanico .b-panel:focus-visible{outline:2px solid #fff;outline-offset:-4px}
+.brisa-abanico .b-panel .b-foto{position:absolute;inset:0;border-radius:0}
+.brisa-abanico .b-etq{position:absolute;left:16px;right:16px;bottom:16px;color:#fff;text-shadow:0 1px 10px rgba(0,0,0,.6);font:600 22px/1.1 system-ui,sans-serif;opacity:0;transform:translateY(10px);transition:opacity .6s,transform .8s}
+.brisa-abanico .b-etq small{display:block;font:500 11px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.14em;margin-bottom:6px}
+.brisa-abanico .b-panel.b-on .b-etq{opacity:1;transform:none;transition-delay:.7s}
+.brisa-ensamblaje .b-rejilla{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);gap:var(--b-hueco,8px);inset:var(--b-hueco,8px)}
+.brisa-ensamblaje .b-foto{min-height:0;will-change:transform,opacity}
+.brisa-ensamblaje .b-t1{grid-area:1/1/3/3}.brisa-ensamblaje .b-t2{grid-area:1/3/2/5}.brisa-ensamblaje .b-t3{grid-area:2/3/4/4}
+.brisa-ensamblaje .b-t4{grid-area:2/4/3/5}.brisa-ensamblaje .b-t5{grid-area:3/1/4/2}.brisa-ensamblaje .b-t6{grid-area:3/2/4/3}.brisa-ensamblaje .b-t7{grid-area:3/4/4/5}
+@media (prefers-reduced-motion:reduce){.brisa *{transition:none !important}}

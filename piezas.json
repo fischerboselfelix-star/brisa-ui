@@ -1,0 +1,23 @@
+{
+  "version": "1.0",
+  "piezas": [
+    {"codigo": "BR-001", "clave": "mosaico", "nombre": "Mosaico", "ancho": "520px", "aspecto": "3 / 4",
+     "descripcion": "Bento con marco fijo: las celdas crecen, se parten y se relevan.",
+     "atributos": {"data-pausa": "2", "data-cambio": "2.4"}},
+    {"codigo": "BR-002", "clave": "marea", "nombre": "Marea", "ancho": "100%", "aspecto": "20 / 11",
+     "descripcion": "Dos filas de fotos que corren en sentidos opuestos.",
+     "atributos": {"data-velocidad": "50"}},
+    {"codigo": "BR-003", "clave": "persianas", "nombre": "Persianas", "ancho": "560px", "aspecto": "1 / 1",
+     "descripcion": "Tres columnas en movimiento vertical, la central a contracorriente.",
+     "atributos": {"data-velocidad": "36"}},
+    {"codigo": "BR-004", "clave": "baraja", "nombre": "Baraja", "ancho": "440px", "aspecto": "20 / 23",
+     "descripcion": "Pila de postales: la de delante sale con un giro y vuelve al fondo.",
+     "atributos": {"data-cambio": "3.6"}},
+    {"codigo": "BR-005", "clave": "abanico", "nombre": "Abanico", "ancho": "100%", "aspecto": "5 / 3",
+     "descripcion": "Paneles que se abren uno tras otro; al pasar el ratón se abre el elegido.",
+     "atributos": {"data-cambio": "4"}},
+    {"codigo": "BR-006", "clave": "ensamblaje", "nombre": "Ensamblaje", "ancho": "640px", "aspecto": "4 / 3",
+     "descripcion": "Las fotos llegan dispersas y encajan en su sitio al hacer scroll.",
+     "atributos": {}}
+  ]
+}
