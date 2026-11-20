@@ -80,7 +80,7 @@
     var gal = galeria(root);
     var origen = gal ? gal.querySelectorAll('img') : root.querySelectorAll('img');
     var fotos = Array.prototype.slice.call(origen).filter(function (im) { return !im.closest('.b-int'); })
-      .map(function (im) { return { src: urlDe(im), alt: im.alt || im.getAttribute('title') || '', etiqueta: im.getAttribute('data-etiqueta') || '', posicion: im.getAttribute('data-posicion') || '' }; });
+      .map(function (im) { return { src: urlDe(im), alt: im.alt || im.getAttribute('title') || '', etiqueta: im.getAttribute('data-etiqueta'), posicion: im.getAttribute('data-posicion') || '' }; });
     if (gal && !enEditor()) ocultarGaleria(gal, root);
 
     Array.prototype.slice.call(root.querySelectorAll('.b-int, .b-aviso')).forEach(function (n) { n.remove(); });
@@ -153,7 +153,9 @@
     for (var i = 0; i < SLOTS; i++) {
       var c = el('div', 'b-celda', ctx.int), f = ctx.fotos[i % ctx.fotos.length];
       foto(f, c);
-      if (etiquetas && (f.etiqueta || f.alt)) el('span', 'b-pie', c).textContent = f.etiqueta || f.alt;
+      // data-etiqueta manda (vacío = sin etiqueta); si no lo lleva, se usa el texto alternativo
+      var txt = f.etiqueta != null ? f.etiqueta : f.alt;
+      if (etiquetas && txt) el('span', 'b-pie', c).textContent = txt;
       celdas.push(c);
     }
     function fuera(r) {

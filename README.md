@@ -7,6 +7,10 @@ Sin plugins: copias la pieza, la pegas, y el código queda en tu web. Las fotos 
 
 Hecho en Dénia por [Marina Code](https://www.marinacode.dev/brisa/) · Licencia MIT
 
+<p align="center"><img src="docs/brisa-ui.gif" width="360" alt="Las seis piezas de Brisa UI en movimiento, con fotos de la costa de Dénia"></p>
+
+**[Ver las demos en vivo y descargar →](https://www.marinacode.dev/brisa/#piezas)**
+
 ## Piezas
 
 | Código | Pieza | Qué hace |
@@ -20,7 +24,7 @@ Hecho en Dénia por [Marina Code](https://www.marinacode.dev/brisa/) · Licencia
 
 ## Usarlas
 
-Descarga el `.zip` de la pieza en `dist/`. Dentro tienes:
+Descarga el `.zip` de la pieza en [marinacode.dev/brisa](https://www.marinacode.dev/brisa/#piezas) o en `dist/`. Dentro tienes:
 
 - `…-elementor.json`: plantilla para importar en Elementor.
 - `…-gutenberg.txt`: bloques para pegar en el editor de WordPress.
