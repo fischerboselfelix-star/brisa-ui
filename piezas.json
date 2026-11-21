@@ -74,10 +74,11 @@
    "aspecto": "4 / 5",
    "descripcion": "Columna inclinada de tarjetas que sube a tirones sobre un texto gigante que baja.",
    "atributos": {
-    "data-texto": "Brisa|Dénia",
-    "data-cambio": "1.5"
+    "data-texto": "Llevant|Ponent",
+    "data-cambio": "1.55"
    },
-   "marco": "#ffffff"
+   "marco": "#ffffff",
+   "fuente": "anton"
   },
   {
    "codigo": "BR-008",

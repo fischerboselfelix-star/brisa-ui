@@ -15,6 +15,8 @@ PIEZAS = json.load(open(ruta('piezas.json')))['piezas']
 JS = open(ruta('core', 'brisa.js'), encoding='utf-8').read()
 CSS = re.sub(r'\n\s*', '\n', open(ruta('core', 'brisa.css'), encoding='utf-8').read()).strip()
 FOTOS = json.load(open(ruta('core', 'fotos-prueba.json')))
+# Fuentes incrustadas (solo las piezas que las piden, p. ej. Cascada)
+FUENTES = {'anton': '\n' + open(ruta('core', 'fuentes', 'anton.css'), encoding='utf-8').read()}
 
 # El código va codificado en un atributo del <div>: así no lo estropean los filtros de texto de WordPress
 # ni la forma en que el editor de Elementor vuelve a ejecutar los <script>.
@@ -32,7 +34,7 @@ def codigo(p):
     return (f'<!-- Brisa UI · {p["codigo"]} {p["nombre"]} · v{VERSION} · Licencia MIT · Fotos: añade una galería debajo -->\n'
             f'<div class="brisa brisa-{p["clave"]}" data-brisa="{p["clave"]}" {attrs} data-brisajs="{PAYLOAD}" '
             f'style="--b-ancho:{p["ancho"]}; --b-marco:{p.get("marco", "#ffffff")}; --b-hueco:8px; --b-radio:24px; aspect-ratio:{p["aspecto"]};">'
-            f'{imgs}</div>\n<style>{CSS}</style>\n{LOADER}\n')
+            f'{imgs}</div>\n<style>{CSS}{FUENTES.get(p.get("fuente"), "")}</style>\n{LOADER}\n')
 
 
 def elementor(p, html):
@@ -74,5 +76,7 @@ for p in PIEZAS:
         for f in sorted(os.listdir(d)):
             z.write(os.path.join(d, f), f'{base}/{f}')
         z.write(ruta('LICENSE'), f'{base}/LICENSE')
+        if p.get('fuente') == 'anton':
+            z.write(ruta('core', 'fuentes', 'Anton-OFL.txt'), f'{base}/Anton-OFL.txt')
 
 print(f'Brisa UI v{VERSION}: {len(PIEZAS)} piezas generadas en dist/')

@@ -336,61 +336,77 @@
       return 3 * (1 - s) * (1 - s) * s * y1 + 3 * (1 - s) * s * s * y2 + s * s * s;
     };
   }
-  var tiron = bezier(.45, 0, .25, 1);
+  var tiron = bezier(.4, 0, .2, 1);
   function sine(t) { return -(Math.cos(Math.PI * t) - 1) / 2; }
-  // u de 0 a 1 dentro de un paso → avance de 0 a 1 (amago 20 %, tirón 47 %, asentarse 33 %)
-  function pasoCascada(u) {
-    if (u < .2) return -.117 * sine(u / .2);
-    if (u < .667) return lerp(-.117, 1.056, tiron((u - .2) / .467));
-    return lerp(1.056, 1, sine((u - .667) / .333));
+  // Un paso medido en la referencia (u de 0 a 1): amago 17 %, tirón 35 %, asentarse 48 %.
+  // amago y pasada en fracción del paso: las tarjetas amagan más que el texto.
+  function pasoCascada(u, amago, pasada) {
+    if (u < .17) return -amago * sine(u / .17);
+    if (u < .52) return lerp(-amago, 1 + pasada, tiron((u - .17) / .35));
+    return lerp(1 + pasada, 1, sine((u - .52) / .48));
   }
   PIEZAS.cascada = function (ctx) {
-    var ciclo = ctx.num('data-cambio', 1.5) * 1000;
-    var palabras = (ctx.root.getAttribute('data-texto') || 'Brisa|Dénia').split('|').map(function (s) { return s.trim(); }).filter(Boolean);
+    var ciclo = ctx.num('data-cambio', 1.55) * 1000;
+    var palabras = (ctx.root.getAttribute('data-texto') || 'Llevant|Ponent').split('|').map(function (s) { return s.trim(); }).filter(Boolean);
     if (palabras.length === 1) palabras.push(palabras[0]);
-    var capa = el('div', 'b-texto', ctx.int), filas = [], medidas = [];
-    var NF = 10; // filas de texto en la capa (sobran para cubrir el alto)
+    var capa = el('div', 'b-texto', ctx.int), filas = [], anchos = [];
+    var NF = 12;
     for (var i = 0; i < NF; i++) filas.push(el('span', '', capa));
     filas.forEach(function (s, i) { s.textContent = palabras[i % palabras.length]; });
     var pila = el('div', 'b-pila', ctx.int);
     var M = 7, pool = [];
-    for (var k = 0; k < M; k++) pool.push({ el: tarjeta(ctx.fotos[k % ctx.fotos.length], pila), j: null });
-    var anchoMedido = 0, altoFila = 0;
-    function medirTexto(W, H) {
-      if (W === anchoMedido) return; anchoMedido = W;
-      altoFila = H * .2;
-      filas.forEach(function (s) { s.style.fontSize = (altoFila * 1.18) + 'px'; s.style.transform = 'none'; });
-      medidas = filas.map(function (s) { return s.getBoundingClientRect().width || 1; });
+    for (var k = 0; k < M; k++) {
+      var c = { el: tarjeta(ctx.fotos[k % ctx.fotos.length], pila), j: null };
+      c.img = c.el.querySelector('img'); c.el.classList.add('b-desliza');
+      pool.push(c);
     }
+    var medido = '', alto = 0, ajuste = [];
+    function medirTexto(W, H) {
+      if (medido === W + 'x' + H) return; medido = W + 'x' + H;
+      alto = H * .19;
+      // Altura de mayúscula real de la fuente, para que cada fila llene su franja
+      var cv = document.createElement('canvas').getContext('2d'), cs = getComputedStyle(capa);
+      cv.font = cs.fontWeight + ' 100px ' + cs.fontFamily;
+      var m = cv.measureText('H'), cap = (m.actualBoundingBoxAscent || 72) / 100;
+      var fs = alto * .97 / cap;
+      filas.forEach(function (s) { s.style.fontSize = fs + 'px'; s.style.lineHeight = alto + 'px'; s.style.transform = 'none'; });
+      anchos = filas.map(function (s) { return s.getBoundingClientRect().width || 1; });
+      ajuste = anchos.map(function (w) { return Math.min(1, W * .8 / w); }); // si no cabe, se estrecha; nunca se ensancha
+    }
+    // Cuando termina de cargar la fuente, se vuelve a medir
+    if (document.fonts && document.fonts.load) document.fonts.load('400 100px BrisaAnton').then(function () { medido = ''; }, function () {});
     var t = 0;
     bucle(ctx, function (dt) {
       t += dt;
       var W = ctx.int.clientWidth, H = ctx.int.clientHeight;
       if (!W || !H) return;
       medirTexto(W, H);
-      var n = Math.floor(t / ciclo), avance = n + pasoCascada((t - n * ciclo) / ciclo);
-      // Texto: baja dos filas por paso
-      var bloque = altoFila * palabras.length, off = ((avance * altoFila * 2) % bloque + bloque) % bloque;
+      var n = Math.floor(t / ciclo), u = (t - n * ciclo) / ciclo;
+      // Texto: baja cuatro filas por paso, a contramovimiento
+      var avT = n + pasoCascada(u, .117, .056), paso = alto * 1.02, bloque = paso * palabras.length;
+      var off = ((avT * paso * 4) % bloque + bloque) % bloque;
       filas.forEach(function (s, i) {
-        var y = i * altoFila + off - bloque;
-        s.style.transform = 'translate3d(' + (W * .015) + 'px,' + y + 'px,0) scaleX(' + (W * .97 / medidas[i]) + ')';
+        var y = i * paso + off - bloque * 2 + (H - Math.floor(H / paso) * paso) / 2;
+        s.style.transform = 'translate3d(' + ((W - anchos[i] * ajuste[i]) / 2) + 'px,' + y + 'px,0) scaleX(' + ajuste[i] + ')';
       });
-      // Tarjetas: suben una por paso, en columna inclinada
-      var D = H * .34, cw = Math.min(W * .7, H * .62), ch = cw * .66, base = Math.floor(avance) - 2;
-      ctx.int.style.perspective = (W * 2.2) + 'px';
+      // Tarjetas: suben una por paso, solapadas, en columna inclinada
+      var av = n + pasoCascada(u, .2, .12);
+      var D = H * .4, cw = Math.min(W * .74, H * .6), ch = cw * .68, base = Math.floor(av) - 2;
+      ctx.int.style.perspective = (W * 2.4) + 'px';
       for (var q = 0; q < M; q++) {
         var j = base + q, c = pool[((j % M) + M) % M];
         if (c.j !== j) {
-          var f = ctx.fotos[((j % ctx.fotos.length) + ctx.fotos.length) % ctx.fotos.length], img = c.el.querySelector('img');
-          if (img.getAttribute('src') !== f.src) img.src = f.src;
-          img.alt = f.alt; img.style.objectPosition = f.posicion || '';
+          var f = ctx.fotos[((j % ctx.fotos.length) + ctx.fotos.length) % ctx.fotos.length];
+          if (c.img.getAttribute('src') !== f.src) c.img.src = f.src;
+          c.img.alt = f.alt; c.img.style.objectPosition = f.posicion || '';
           c.j = j;
         }
-        var y = H * .5 + (j - avance) * D;
-        var e = c.el;
+        var rel = j - av, y = H * .5 + rel * D, e = c.el;
         e.style.width = cw + 'px'; e.style.height = ch + 'px';
         e.style.zIndex = 10 + q;
-        e.style.transform = 'translate3d(' + (W * .56 - cw / 2) + 'px,' + (y - ch / 2) + 'px,0) rotateZ(13deg) rotateY(-12deg) rotateX(18deg)';
+        e.style.transform = 'translate3d(' + (W * .62 - cw / 2) + 'px,' + (y - ch / 2) + 'px,0) rotateZ(15deg) rotateY(-10deg) rotateX(16deg)';
+        // Dentro de cada tarjeta la imagen se desliza un poco hacia abajo mientras la tarjeta sube
+        c.img.style.transform = 'translate3d(0,' + Math.max(-9, Math.min(9, rel * -4.5)) + '%,0)';
       }
     });
   };
