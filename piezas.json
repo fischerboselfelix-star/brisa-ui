@@ -88,8 +88,8 @@
    "aspecto": "20 / 23",
    "descripcion": "Tambor vertical: la foto del centro queda plana y las demás se doblan hacia atrás.",
    "atributos": {
-    "data-pausa": "1.4",
-    "data-cambio": "1"
+    "data-pausa": "0.9",
+    "data-cambio": "0.7"
    },
    "marco": "#1A1F2E"
   },

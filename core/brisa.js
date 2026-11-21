@@ -438,7 +438,7 @@
 
   /* ---------- BR-008 Rodillo: tambor vertical, la del centro queda plana ---------- */
   PIEZAS.rodillo = function (ctx) {
-    var pausa = ctx.num('data-pausa', 1.4) * 1000, cambio = ctx.num('data-cambio', 1) * 1000;
+    var pausa = ctx.num('data-pausa', .9) * 1000, cambio = ctx.num('data-cambio', .7) * 1000;
     var lista = repetir(ctx.fotos, 8), N = lista.length, A = 38; // grados entre tarjeta y tarjeta
     var cartas = lista.map(function (f) { return tarjeta(f, ctx.int); });
     var t = 0;
