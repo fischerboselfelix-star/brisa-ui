@@ -31,7 +31,7 @@ def codigo(p):
     imgs = ''.join(f'<img src="{s}" alt="Foto {i + 1}">' for i, s in enumerate(FOTOS))
     return (f'<!-- Brisa UI · {p["codigo"]} {p["nombre"]} · v{VERSION} · Licencia MIT · Fotos: añade una galería debajo -->\n'
             f'<div class="brisa brisa-{p["clave"]}" data-brisa="{p["clave"]}" {attrs} data-brisajs="{PAYLOAD}" '
-            f'style="--b-ancho:{p["ancho"]}; --b-marco:#ffffff; --b-hueco:8px; --b-radio:24px; aspect-ratio:{p["aspecto"]};">'
+            f'style="--b-ancho:{p["ancho"]}; --b-marco:{p.get("marco", "#ffffff")}; --b-hueco:8px; --b-radio:24px; aspect-ratio:{p["aspecto"]};">'
             f'{imgs}</div>\n<style>{CSS}</style>\n{LOADER}\n')
 
 

@@ -54,7 +54,9 @@ Están en el `<div class="brisa …">` del código:
 | `--b-hueco` | Separación entre fotos | `8px` |
 | `--b-radio` | Redondeo de las esquinas | `24px` |
 | `data-proporcion` | Alto ÷ ancho | `1.3333` (3:4), `1` (cuadrado) |
-| `data-pausa`, `data-cambio`, `data-velocidad` | Ritmo de la animación | segundos o píxeles por segundo |
+| `data-pausa`, `data-cambio`, `data-velocidad` | Ritmo de la animación | segundos, píxeles o grados por segundo |
+| `data-texto` | Solo Cascada: las palabras del fondo, separadas por `\|` | `Tu marca\|Tu ciudad` |
+| `--b-texto` | Solo Cascada: color del texto del fondo | `#0b0b0b` |
 
 ## Si no se mueve
 

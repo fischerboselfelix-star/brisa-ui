@@ -21,6 +21,10 @@ Hecho en Dénia por [Marina Code](https://www.marinacode.dev/brisa/) · Licencia
 | BR-004 | Baraja | Pila de postales: la de delante sale con un giro y vuelve al fondo |
 | BR-005 | Abanico | Paneles que se abren uno tras otro |
 | BR-006 | Ensamblaje | Las fotos llegan dispersas y encajan al hacer scroll |
+| BR-007 | Cascada | Columna inclinada de tarjetas que sube a tirones sobre un texto gigante |
+| BR-008 | Rodillo | Tambor vertical: la del centro queda plana y las demás se doblan hacia atrás |
+| BR-009 | Anillo | Aro horizontal de fotos que gira, visto un poco desde arriba |
+| BR-010 | Corona | Círculo de fotos que gira despacio y se balancea en 3D |
 
 ## Usarlas
 

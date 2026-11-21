@@ -5,7 +5,7 @@
    de Elementor más cercano (debajo o encima) o, si no hay, de las <img> de prueba que lleva dentro. */
 (function () {
   var PIEZAS = {};
-  var PROP = { mosaico: 4 / 3, marea: 0.55, persianas: 1, baraja: 1.15, abanico: 0.6, ensamblaje: 0.75 };
+  var PROP = { mosaico: 4 / 3, marea: 0.55, persianas: 1, baraja: 1.15, abanico: 0.6, ensamblaje: 0.75, cascada: 1.25, rodillo: 1.15, anillo: 0.8, corona: 1 };
 
   /* ---------- utilidades ---------- */
   function enEditor() { return document.body && document.body.classList.contains('elementor-editor-active'); }
@@ -304,6 +304,168 @@
         var k = ease(clamp((p - i * .06) / .55)), d = desde[i];
         t.style.transform = 'translate(' + d[0] * (1 - k) + '%,' + d[1] * (1 - k) + '%) rotate(' + d[2] * (1 - k) + 'deg) scale(' + (.7 + .3 * k) + ')';
         t.style.opacity = .15 + .85 * k;
+      });
+    });
+  };
+
+
+  /* ---------- piezas 3D: utilidades comunes ---------- */
+  // Repite las fotos hasta tener al menos n (las piezas en círculo necesitan muchas)
+  function repetir(fotos, n, max) {
+    var l = fotos.slice(); while (l.length < n) l = l.concat(fotos);
+    return max ? l.slice(0, Math.max(n, Math.min(l.length, max))) : l;
+  }
+  function tarjeta(f, padre) {
+    var t = el('div', 'b-tarjeta', padre); foto(f, t); t._velo = el('span', 'b-velo', t);
+    return t;
+  }
+  function rad(g) { return g * Math.PI / 180; }
+
+  /* ---------- BR-007 Cascada: columna inclinada de tarjetas sobre un texto gigante ----------
+     Movimiento por pasos medido sobre la referencia: amago hacia atrás, tirón, se pasa un poco y se asienta.
+     Las tarjetas suben y el texto baja a la vez, a contramovimiento. */
+  function bezier(x1, y1, x2, y2) {
+    return function (x) {
+      var s = x, i, cx, d;
+      for (i = 0; i < 6; i++) {
+        cx = 3 * (1 - s) * (1 - s) * s * x1 + 3 * (1 - s) * s * s * x2 + s * s * s - x;
+        d = 3 * (1 - s) * (1 - s) * x1 + 6 * (1 - s) * s * (x2 - x1) + 3 * s * s * (1 - x2);
+        if (Math.abs(cx) < 1e-4 || !d) break;
+        s = Math.max(0, Math.min(1, s - cx / d));
+      }
+      return 3 * (1 - s) * (1 - s) * s * y1 + 3 * (1 - s) * s * s * y2 + s * s * s;
+    };
+  }
+  var tiron = bezier(.45, 0, .25, 1);
+  function sine(t) { return -(Math.cos(Math.PI * t) - 1) / 2; }
+  // u de 0 a 1 dentro de un paso → avance de 0 a 1 (amago 20 %, tirón 47 %, asentarse 33 %)
+  function pasoCascada(u) {
+    if (u < .2) return -.117 * sine(u / .2);
+    if (u < .667) return lerp(-.117, 1.056, tiron((u - .2) / .467));
+    return lerp(1.056, 1, sine((u - .667) / .333));
+  }
+  PIEZAS.cascada = function (ctx) {
+    var ciclo = ctx.num('data-cambio', 1.5) * 1000;
+    var palabras = (ctx.root.getAttribute('data-texto') || 'Brisa|Dénia').split('|').map(function (s) { return s.trim(); }).filter(Boolean);
+    if (palabras.length === 1) palabras.push(palabras[0]);
+    var capa = el('div', 'b-texto', ctx.int), filas = [], medidas = [];
+    var NF = 10; // filas de texto en la capa (sobran para cubrir el alto)
+    for (var i = 0; i < NF; i++) filas.push(el('span', '', capa));
+    filas.forEach(function (s, i) { s.textContent = palabras[i % palabras.length]; });
+    var pila = el('div', 'b-pila', ctx.int);
+    var M = 7, pool = [];
+    for (var k = 0; k < M; k++) pool.push({ el: tarjeta(ctx.fotos[k % ctx.fotos.length], pila), j: null });
+    var anchoMedido = 0, altoFila = 0;
+    function medirTexto(W, H) {
+      if (W === anchoMedido) return; anchoMedido = W;
+      altoFila = H * .2;
+      filas.forEach(function (s) { s.style.fontSize = (altoFila * 1.18) + 'px'; s.style.transform = 'none'; });
+      medidas = filas.map(function (s) { return s.getBoundingClientRect().width || 1; });
+    }
+    var t = 0;
+    bucle(ctx, function (dt) {
+      t += dt;
+      var W = ctx.int.clientWidth, H = ctx.int.clientHeight;
+      if (!W || !H) return;
+      medirTexto(W, H);
+      var n = Math.floor(t / ciclo), avance = n + pasoCascada((t - n * ciclo) / ciclo);
+      // Texto: baja dos filas por paso
+      var bloque = altoFila * palabras.length, off = ((avance * altoFila * 2) % bloque + bloque) % bloque;
+      filas.forEach(function (s, i) {
+        var y = i * altoFila + off - bloque;
+        s.style.transform = 'translate3d(' + (W * .015) + 'px,' + y + 'px,0) scaleX(' + (W * .97 / medidas[i]) + ')';
+      });
+      // Tarjetas: suben una por paso, en columna inclinada
+      var D = H * .34, cw = Math.min(W * .7, H * .62), ch = cw * .66, base = Math.floor(avance) - 2;
+      ctx.int.style.perspective = (W * 2.2) + 'px';
+      for (var q = 0; q < M; q++) {
+        var j = base + q, c = pool[((j % M) + M) % M];
+        if (c.j !== j) {
+          var f = ctx.fotos[((j % ctx.fotos.length) + ctx.fotos.length) % ctx.fotos.length], img = c.el.querySelector('img');
+          if (img.getAttribute('src') !== f.src) img.src = f.src;
+          img.alt = f.alt; img.style.objectPosition = f.posicion || '';
+          c.j = j;
+        }
+        var y = H * .5 + (j - avance) * D;
+        var e = c.el;
+        e.style.width = cw + 'px'; e.style.height = ch + 'px';
+        e.style.zIndex = 10 + q;
+        e.style.transform = 'translate3d(' + (W * .56 - cw / 2) + 'px,' + (y - ch / 2) + 'px,0) rotateZ(13deg) rotateY(-12deg) rotateX(18deg)';
+      }
+    });
+  };
+
+  /* ---------- BR-008 Rodillo: tambor vertical, la del centro queda plana ---------- */
+  PIEZAS.rodillo = function (ctx) {
+    var pausa = ctx.num('data-pausa', 1.4) * 1000, cambio = ctx.num('data-cambio', 1) * 1000;
+    var lista = repetir(ctx.fotos, 8), N = lista.length, A = 38; // grados entre tarjeta y tarjeta
+    var cartas = lista.map(function (f) { return tarjeta(f, ctx.int); });
+    var t = 0;
+    bucle(ctx, function (dt) {
+      t += dt;
+      var W = ctx.int.clientWidth, H = ctx.int.clientHeight;
+      if (!W || !H) return;
+      ctx.int.style.perspective = (H * 2.4) + 'px';
+      var n = Math.floor(t / (pausa + cambio)), loc = t - n * (pausa + cambio);
+      var pos = n + (loc < pausa ? 0 : easeIO((loc - pausa) / cambio));
+      var R = H * .46, ch = 2 * R * Math.tan(rad(A / 2)) * .9, cw = Math.min(W * .74, ch * 1.55);
+      cartas.forEach(function (e, i) {
+        var d = ((i - pos) % N + N) % N; if (d > N / 2) d -= N;
+        var th = d * A;
+        if (Math.abs(th) > 100) { e.style.visibility = 'hidden'; return; }
+        e.style.visibility = 'visible';
+        var c = Math.cos(rad(th));
+        e.style.width = cw + 'px'; e.style.height = ch + 'px';
+        e.style.zIndex = 50 + Math.round(c * 40);
+        e.style.transform = 'translate3d(' + (-cw / 2) + 'px,' + (R * Math.sin(rad(th)) - ch / 2) + 'px,' + (R * c - R) + 'px) rotateX(' + (-th) + 'deg)';
+        e._velo.style.opacity = Math.max(0, (1 - c) * .55);
+      });
+    });
+  };
+
+  /* ---------- BR-009 Anillo: aro horizontal de tarjetas visto desde arriba ---------- */
+  PIEZAS.anillo = function (ctx) {
+    var vel = ctx.num('data-velocidad', 14); // grados por segundo
+    var lista = repetir(ctx.fotos, 10, 14), N = lista.length, paso = 360 / N;
+    var escena = el('div', 'b-escena', ctx.int);
+    var cartas = lista.map(function (f) { return tarjeta(f, escena); });
+    var giro = 0;
+    bucle(ctx, function (dt) {
+      giro += vel * dt / 1000;
+      var W = ctx.int.clientWidth, H = ctx.int.clientHeight;
+      if (!W || !H) return;
+      var R = Math.min(W * .4, H * .55), cw = 2 * R * Math.sin(rad(paso / 2)) * .93, ch = Math.min(cw * 1.25, H * .34);
+      ctx.int.style.perspective = (Math.max(W, H) * 1.7) + 'px';
+      escena.style.transform = 'translate3d(0,' + (-H * .07) + 'px,' + (-R * .15) + 'px) rotateX(-22deg) rotateZ(5deg) rotateY(' + (-giro) + 'deg)';
+      cartas.forEach(function (e, i) {
+        var a = i * paso, mira = Math.cos(rad(a - giro)); // 1 = de cara, -1 = de espaldas
+        e.style.width = cw + 'px'; e.style.height = ch + 'px';
+        e.style.transform = 'translate(-50%,-50%) rotateY(' + a + 'deg) translateZ(' + R + 'px)';
+        e._velo.style.opacity = mira < 0 ? .55 - mira * .2 : (1 - mira) * .25;
+      });
+    });
+  };
+
+  /* ---------- BR-010 Corona: aro de fotos que gira y se balancea en 3D ---------- */
+  PIEZAS.corona = function (ctx) {
+    var vel = ctx.num('data-velocidad', 9);
+    var lista = repetir(ctx.fotos, 9, 12), N = lista.length, paso = 360 / N;
+    var escena = el('div', 'b-escena', ctx.int);
+    var cartas = lista.map(function (f) { return tarjeta(f, escena); });
+    var t = 0;
+    bucle(ctx, function (dt) {
+      t += dt;
+      var W = ctx.int.clientWidth, H = ctx.int.clientHeight;
+      if (!W || !H) return;
+      var s = t / 1000, R = Math.min(W, H) * .3, lado = R * .62;
+      ctx.int.style.perspective = (Math.min(W, H) * 2.2) + 'px';
+      escena.style.transform = 'rotateX(' + (16 * Math.sin(s * .45)) + 'deg) rotateY(' + (24 * Math.sin(s * .3 + 1)) + 'deg)';
+      var giro = s * vel;
+      cartas.forEach(function (e, i) {
+        var a = rad(i * paso + giro - 90), z = 26 * Math.sin(i * 1.7 + s * .8);
+        e.style.width = lado + 'px'; e.style.height = lado + 'px';
+        e.style.transform = 'translate3d(' + (R * Math.cos(a) - lado / 2) + 'px,' + (R * Math.sin(a) - lado / 2) + 'px,' + z + 'px) rotateZ(' + (8 * Math.sin(i * 2.3 + s * .6)) + 'deg)';
+        e._velo.style.opacity = Math.max(0, -z / 26) * .18;
       });
     });
   };

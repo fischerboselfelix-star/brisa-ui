@@ -1,23 +1,120 @@
 {
-  "version": "1.0",
-  "piezas": [
-    {"codigo": "BR-001", "clave": "mosaico", "nombre": "Mosaico", "ancho": "520px", "aspecto": "3 / 4",
-     "descripcion": "Bento con marco fijo: las celdas crecen, se parten y se relevan.",
-     "atributos": {"data-pausa": "2", "data-cambio": "2.4"}},
-    {"codigo": "BR-002", "clave": "marea", "nombre": "Marea", "ancho": "100%", "aspecto": "20 / 11",
-     "descripcion": "Dos filas de fotos que corren en sentidos opuestos.",
-     "atributos": {"data-velocidad": "50"}},
-    {"codigo": "BR-003", "clave": "persianas", "nombre": "Persianas", "ancho": "560px", "aspecto": "1 / 1",
-     "descripcion": "Tres columnas en movimiento vertical, la central a contracorriente.",
-     "atributos": {"data-velocidad": "36"}},
-    {"codigo": "BR-004", "clave": "baraja", "nombre": "Baraja", "ancho": "440px", "aspecto": "20 / 23",
-     "descripcion": "Pila de postales: la de delante sale con un giro y vuelve al fondo.",
-     "atributos": {"data-cambio": "3.6"}},
-    {"codigo": "BR-005", "clave": "abanico", "nombre": "Abanico", "ancho": "100%", "aspecto": "5 / 3",
-     "descripcion": "Paneles que se abren uno tras otro; al pasar el ratón se abre el elegido.",
-     "atributos": {"data-cambio": "4"}},
-    {"codigo": "BR-006", "clave": "ensamblaje", "nombre": "Ensamblaje", "ancho": "640px", "aspecto": "4 / 3",
-     "descripcion": "Las fotos llegan dispersas y encajan en su sitio al hacer scroll.",
-     "atributos": {}}
-  ]
+ "version": "1.1",
+ "piezas": [
+  {
+   "codigo": "BR-001",
+   "clave": "mosaico",
+   "nombre": "Mosaico",
+   "ancho": "520px",
+   "aspecto": "3 / 4",
+   "descripcion": "Bento con marco fijo: las celdas crecen, se parten y se relevan.",
+   "atributos": {
+    "data-pausa": "2",
+    "data-cambio": "2.4"
+   }
+  },
+  {
+   "codigo": "BR-002",
+   "clave": "marea",
+   "nombre": "Marea",
+   "ancho": "100%",
+   "aspecto": "20 / 11",
+   "descripcion": "Dos filas de fotos que corren en sentidos opuestos.",
+   "atributos": {
+    "data-velocidad": "50"
+   }
+  },
+  {
+   "codigo": "BR-003",
+   "clave": "persianas",
+   "nombre": "Persianas",
+   "ancho": "560px",
+   "aspecto": "1 / 1",
+   "descripcion": "Tres columnas en movimiento vertical, la central a contracorriente.",
+   "atributos": {
+    "data-velocidad": "36"
+   }
+  },
+  {
+   "codigo": "BR-004",
+   "clave": "baraja",
+   "nombre": "Baraja",
+   "ancho": "440px",
+   "aspecto": "20 / 23",
+   "descripcion": "Pila de postales: la de delante sale con un giro y vuelve al fondo.",
+   "atributos": {
+    "data-cambio": "3.6"
+   }
+  },
+  {
+   "codigo": "BR-005",
+   "clave": "abanico",
+   "nombre": "Abanico",
+   "ancho": "100%",
+   "aspecto": "5 / 3",
+   "descripcion": "Paneles que se abren uno tras otro; al pasar el ratón se abre el elegido.",
+   "atributos": {
+    "data-cambio": "4"
+   }
+  },
+  {
+   "codigo": "BR-006",
+   "clave": "ensamblaje",
+   "nombre": "Ensamblaje",
+   "ancho": "640px",
+   "aspecto": "4 / 3",
+   "descripcion": "Las fotos llegan dispersas y encajan en su sitio al hacer scroll.",
+   "atributos": {}
+  },
+  {
+   "codigo": "BR-007",
+   "clave": "cascada",
+   "nombre": "Cascada",
+   "ancho": "560px",
+   "aspecto": "4 / 5",
+   "descripcion": "Columna inclinada de tarjetas que sube a tirones sobre un texto gigante que baja.",
+   "atributos": {
+    "data-texto": "Brisa|Dénia",
+    "data-cambio": "1.5"
+   },
+   "marco": "#ffffff"
+  },
+  {
+   "codigo": "BR-008",
+   "clave": "rodillo",
+   "nombre": "Rodillo",
+   "ancho": "520px",
+   "aspecto": "20 / 23",
+   "descripcion": "Tambor vertical: la foto del centro queda plana y las demás se doblan hacia atrás.",
+   "atributos": {
+    "data-pausa": "1.4",
+    "data-cambio": "1"
+   },
+   "marco": "#1A1F2E"
+  },
+  {
+   "codigo": "BR-009",
+   "clave": "anillo",
+   "nombre": "Anillo",
+   "ancho": "900px",
+   "aspecto": "5 / 4",
+   "descripcion": "Aro horizontal de fotos que gira, visto un poco desde arriba.",
+   "atributos": {
+    "data-velocidad": "14"
+   },
+   "marco": "#12161f"
+  },
+  {
+   "codigo": "BR-010",
+   "clave": "corona",
+   "nombre": "Corona",
+   "ancho": "600px",
+   "aspecto": "1 / 1",
+   "descripcion": "Círculo de fotos que gira despacio y se balancea en 3D.",
+   "atributos": {
+    "data-velocidad": "9"
+   },
+   "marco": "#ece6dc"
+  }
+ ]
 }
