@@ -321,9 +321,12 @@
   }
   function rad(g) { return g * Math.PI / 180; }
 
-  /* ---------- BR-007 Cascada: columna inclinada de tarjetas sobre un texto gigante ----------
-     Movimiento por pasos medido sobre la referencia: amago hacia atrás, tirón, se pasa un poco y se asienta.
-     Las tarjetas suben y el texto baja a la vez, a contramovimiento. */
+  /* ---------- BR-007 Cascada: columna de tarjetas inclinadas sobre un texto gigante ----------
+     Cada paso (medido fotograma a fotograma sobre la referencia):
+       1. amago: las tarjetas bajan un poco y el texto sube;
+       2. tirón: las tarjetas se ENDEREZAN (giro y 3D a cero) mientras suben una posición; el texto baja;
+       3. se asientan pasándose un poco y vuelven a inclinarse.
+     data-modo="auto" (por defecto) da un paso cada data-cambio segundos; "scroll" da un paso por cada golpe de scroll. */
   function bezier(x1, y1, x2, y2) {
     return function (x) {
       var s = x, i, cx, d;
@@ -337,62 +340,80 @@
     };
   }
   var tiron = bezier(.4, 0, .2, 1);
+  function azar(n) { var x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
   function sine(t) { return -(Math.cos(Math.PI * t) - 1) / 2; }
-  // Un paso medido en la referencia (u de 0 a 1): amago 17 %, tirón 35 %, asentarse 48 %.
-  // amago y pasada en fracción del paso: las tarjetas amagan más que el texto.
   function pasoCascada(u, amago, pasada) {
     if (u < .17) return -amago * sine(u / .17);
-    if (u < .52) return lerp(-amago, 1 + pasada, tiron((u - .17) / .35));
-    return lerp(1 + pasada, 1, sine((u - .52) / .48));
+    if (u < .45) return lerp(-amago, 1 + pasada, tiron((u - .17) / .28));
+    return lerp(1 + pasada, 1, sine((u - .45) / .55));
+  }
+  // Cuánto se enderezan las tarjetas (0 = inclinadas, 1 = rectas): sube durante el amago, máximo al empezar el tirón
+  function recto(u) {
+    if (u < .06 || u > .5) return 0;
+    return u < .22 ? sine((u - .06) / .16) : 1 - sine((u - .22) / .28);
   }
   PIEZAS.cascada = function (ctx) {
-    var ciclo = ctx.num('data-cambio', 1.55) * 1000;
+    var modo = ctx.root.getAttribute('data-modo') || 'auto';
+    var ciclo = ctx.num('data-cambio', 1.47) * 1000, dur = Math.min(ciclo, 1470);
     var palabras = (ctx.root.getAttribute('data-texto') || 'Llevant|Ponent').split('|').map(function (s) { return s.trim(); }).filter(Boolean);
     if (palabras.length === 1) palabras.push(palabras[0]);
     var capa = el('div', 'b-texto', ctx.int), filas = [], anchos = [];
-    var NF = 12;
+    var NF = 16;
     for (var i = 0; i < NF; i++) filas.push(el('span', '', capa));
     filas.forEach(function (s, i) { s.textContent = palabras[i % palabras.length]; });
     var pila = el('div', 'b-pila', ctx.int);
-    var M = 7, pool = [];
+    var M = 6, pool = [];
     for (var k = 0; k < M; k++) {
       var c = { el: tarjeta(ctx.fotos[k % ctx.fotos.length], pila), j: null };
-      c.img = c.el.querySelector('img'); c.el.classList.add('b-desliza');
-      pool.push(c);
+      c.img = c.el.querySelector('img'); pool.push(c);
     }
-    var medido = '', alto = 0, ajuste = [];
+    var medido = '', alto = 0;
     function medirTexto(W, H) {
       if (medido === W + 'x' + H) return; medido = W + 'x' + H;
-      alto = H * .19;
-      // Altura de mayúscula real de la fuente, para que cada fila llene su franja
+      alto = H * .115;
       var cv = document.createElement('canvas').getContext('2d'), cs = getComputedStyle(capa);
       cv.font = cs.fontWeight + ' 100px ' + cs.fontFamily;
-      var m = cv.measureText('H'), cap = (m.actualBoundingBoxAscent || 72) / 100;
-      var fs = alto * .97 / cap;
-      filas.forEach(function (s) { s.style.fontSize = fs + 'px'; s.style.lineHeight = alto + 'px'; s.style.transform = 'none'; });
+      var cap = (cv.measureText('H').actualBoundingBoxAscent || 72) / 100;
+      filas.forEach(function (s) { s.style.fontSize = (alto * .92 / cap) + 'px'; s.style.lineHeight = alto + 'px'; s.style.transform = 'none'; });
       anchos = filas.map(function (s) { return s.getBoundingClientRect().width || 1; });
-      ajuste = anchos.map(function (w) { return Math.min(1, W * .8 / w); }); // si no cabe, se estrecha; nunca se ensancha
     }
-    // Cuando termina de cargar la fuente, se vuelve a medir
     if (document.fonts && document.fonts.load) document.fonts.load('400 100px BrisaAnton').then(function () { medido = ''; }, function () {});
-    var t = 0;
+
+    // Pasos: en "auto" llegan solos; en "scroll" cada golpe de rueda/desplazamiento pide uno (en cola)
+    var t = 0, n = 0, inicio = modo === 'auto' ? -ciclo * .8 : 0, pendientes = modo === 'auto' ? 0 : 1, ultimo = null, acum = 0;
+    if (modo === 'scroll') window.addEventListener('scroll', function () {
+      var y = window.pageYOffset || 0;
+      if (ultimo !== null) { acum += y - ultimo; if (acum > 60) { pendientes = Math.min(pendientes + 1, 2); acum = 0; } }
+      ultimo = y;
+    }, { passive: true });
+
     bucle(ctx, function (dt) {
       t += dt;
       var W = ctx.int.clientWidth, H = ctx.int.clientHeight;
       if (!W || !H) return;
       medirTexto(W, H);
-      var n = Math.floor(t / ciclo), u = (t - n * ciclo) / ciclo;
-      // Texto: baja cuatro filas por paso, a contramovimiento
-      var avT = n + pasoCascada(u, .117, .056), paso = alto * 1.02, bloque = paso * palabras.length;
-      var off = ((avT * paso * 4) % bloque + bloque) % bloque;
+      var u = (t - inicio) / dur;
+      if (u >= 1 || (modo === 'auto' && t - inicio >= ciclo)) {
+        if (modo === 'auto' || pendientes > 0) { n++; inicio = t; u = 0; if (modo !== 'auto') pendientes--; }
+        else u = 1;
+      }
+      if (n === 0 && modo !== 'auto' && pendientes > 0 && t - inicio > 400) { pendientes--; inicio = t; u = 0; n = 1; }
+      u = Math.max(0, Math.min(1, u));
+      var paso = n === 0 ? 0 : pasoCascada(u, .14, .06), r = n === 0 ? 0 : recto(u);
+      var av = (n - 1) + paso; // posición de la columna, en tarjetas
+
+      // Texto: baja cuatro filas por paso (a contramovimiento), ocupa todo el ancho y se corta por los lados
+      var avT = (n - 1) + (n === 0 ? 0 : pasoCascada(u, .1, .04));
+      var bloque = alto * palabras.length, off = ((avT * alto * 4) % bloque + bloque) % bloque;
       filas.forEach(function (s, i) {
-        var y = i * paso + off - bloque * 2 + (H - Math.floor(H / paso) * paso) / 2;
-        s.style.transform = 'translate3d(' + ((W - anchos[i] * ajuste[i]) / 2) + 'px,' + y + 'px,0) scaleX(' + ajuste[i] + ')';
+        var y = i * alto + off - bloque * 2, k = W * 1.08 / anchos[i];
+        s.style.transform = 'translate3d(' + (-W * .04) + 'px,' + y + 'px,0) scaleX(' + k + ')';
       });
-      // Tarjetas: suben una por paso, solapadas, en columna inclinada
-      var av = n + pasoCascada(u, .2, .12);
-      var D = H * .4, cw = Math.min(W * .74, H * .6), ch = cw * .68, base = Math.floor(av) - 2;
-      ctx.int.style.perspective = (W * 2.4) + 'px';
+
+      // Tarjetas: todas iguales, en columna; inclinadas en reposo y rectas durante el tirón
+      var cw = Math.min(W * .66, H * .56), ch = cw * .68, D = ch * 1.08, base = Math.floor(av) - 2;
+      ctx.int.style.perspective = (W * 2) + 'px';
+      var q1 = 1 - r;
       for (var q = 0; q < M; q++) {
         var j = base + q, c = pool[((j % M) + M) % M];
         if (c.j !== j) {
@@ -401,12 +422,16 @@
           c.img.alt = f.alt; c.img.style.objectPosition = f.posicion || '';
           c.j = j;
         }
-        var rel = j - av, y = H * .5 + rel * D, e = c.el;
+        var y = H * .5 + (j - av) * D * (1 - .1 * q1);
+        var e = c.el;
         e.style.width = cw + 'px'; e.style.height = ch + 'px';
         e.style.zIndex = 10 + q;
-        e.style.transform = 'translate3d(' + (W * .62 - cw / 2) + 'px,' + (y - ch / 2) + 'px,0) rotateZ(15deg) rotateY(-10deg) rotateX(16deg)';
-        // Dentro de cada tarjeta la imagen se desliza un poco hacia abajo mientras la tarjeta sube
-        c.img.style.transform = 'translate3d(0,' + Math.max(-9, Math.min(9, rel * -4.5)) + '%,0)';
+        // Cada tarjeta se inclina a un lado distinto que la de al lado, y cambia de lado en cada tirón
+        // alternan izquierda/derecha según el hueco que ocupan, así cada tarjeta cambia de lado en cada tirón
+        // (el cambio se hace en el instante en que están rectas, para que no se note el salto)
+        var hueco = j - (u < .22 ? n - 1 : n), dir = (((hueco % 2) + 2) % 2) === 0 ? -1 : 1;
+        var gz = dir * (13 + 9 * azar(j + 11)), gy = -dir * (14 + 10 * azar(j + 5)), gx = 12 + 8 * azar(j + 9);
+        e.style.transform = 'translate3d(' + (W * (.5 + dir * .02) - cw / 2) + 'px,' + (y - ch / 2) + 'px,0) rotateZ(' + (gz * q1) + 'deg) rotateY(' + (gy * q1) + 'deg) rotateX(' + (gx * q1) + 'deg)';
       }
     });
   };

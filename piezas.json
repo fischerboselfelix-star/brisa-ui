@@ -72,10 +72,10 @@
    "nombre": "Cascada",
    "ancho": "560px",
    "aspecto": "4 / 5",
-   "descripcion": "Columna inclinada de tarjetas que sube a tirones sobre un texto gigante que baja.",
+   "descripcion": "Columna de tarjetas que sube a tirones: se enderezan al moverse y vuelven a inclinarse, alternando izquierda y derecha, sobre un texto gigante que baja.",
    "atributos": {
     "data-texto": "Llevant|Ponent",
-    "data-cambio": "1.55"
+    "data-cambio": "1.47"
    },
    "marco": "#ffffff",
    "fuente": "anton"

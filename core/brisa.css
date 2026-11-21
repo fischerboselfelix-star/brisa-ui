@@ -40,7 +40,6 @@ background:var(--b-marco,#fff);border-radius:var(--b-radio,24px);overflow:hidden
 .brisa-cascada .b-texto{position:absolute;inset:0;overflow:hidden;color:var(--b-texto,#0b0b0b);
 font-family:var(--b-fuente,BrisaAnton,Impact,"Arial Narrow Bold",sans-serif);font-weight:400;text-transform:uppercase;letter-spacing:-.02em;white-space:nowrap;user-select:none}
 .brisa-cascada .b-texto span{position:absolute;left:0;top:0;display:block;white-space:nowrap;transform-origin:0 0;will-change:transform}
-.brisa .b-desliza .b-foto img{height:122%;margin-top:-11%}
 .brisa-cascada .b-pila{position:absolute;inset:0}
 .brisa-rodillo .b-int,.brisa-anillo .b-int,.brisa-corona .b-int{inset:0}
 .brisa-rodillo .b-tarjeta{left:50%;top:50%;backface-visibility:hidden}
