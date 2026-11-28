@@ -467,7 +467,7 @@
   /* ---------- BR-009 Anillo: aro horizontal de tarjetas visto desde arriba ---------- */
   PIEZAS.anillo = function (ctx) {
     var vel = ctx.num('data-velocidad', 14); // grados por segundo
-    var lista = repetir(ctx.fotos, 10, 14), N = lista.length, paso = 360 / N;
+    var lista = repetir(ctx.fotos, 8, 14), N = lista.length, paso = 360 / N; // con 8 o más fotos no se repite ninguna
     var escena = el('div', 'b-escena', ctx.int);
     var cartas = lista.map(function (f) { return tarjeta(f, escena); });
     var giro = 0;
@@ -490,7 +490,7 @@
   /* ---------- BR-010 Corona: aro de fotos que gira y se balancea en 3D ---------- */
   PIEZAS.corona = function (ctx) {
     var vel = ctx.num('data-velocidad', 9);
-    var lista = repetir(ctx.fotos, 9, 12), N = lista.length, paso = 360 / N;
+    var lista = repetir(ctx.fotos, 6, 12), N = lista.length, paso = 360 / N; // con 6 o más fotos no se repite ninguna
     var escena = el('div', 'b-escena', ctx.int);
     var cartas = lista.map(function (f) { return tarjeta(f, escena); });
     var t = 0;
