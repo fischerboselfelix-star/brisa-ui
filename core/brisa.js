@@ -374,6 +374,8 @@
     if (palabras.length === 1) palabras.push(palabras[0]);
     var capa = el('div', 'b-texto', ctx.int), filas = [], anchos = [];
     var NF = 16;
+    var txAttr = ctx.root.getAttribute('data-texto'), sinTexto = txAttr !== null && !txAttr.trim(); // data-texto="" = sin texto de fondo
+    if (sinTexto) { capa.style.display = 'none'; NF = 0; }
     for (var i = 0; i < NF; i++) filas.push(el('span', '', capa));
     filas.forEach(function (s, i) { s.textContent = palabras[i % palabras.length]; });
     var pila = el('div', 'b-pila', ctx.int);
