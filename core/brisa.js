@@ -321,6 +321,20 @@
   }
   function rad(g) { return g * Math.PI / 180; }
 
+
+  /* Fondo opcional (Cascada y Rodillo): data-fondo="primera" usa la primera foto de la galería como fondo
+     (y ya no sale como tarjeta); también acepta la dirección de una imagen. */
+  function ponerFondo(ctx) {
+    var v = ctx.root.getAttribute('data-fondo');
+    if (!v) return;
+    var src = v, alt = '';
+    if (v === 'primera') {
+      if (ctx.fotos.length < 4) return; // con pocas fotos no se quita ninguna
+      var f = ctx.fotos.shift(); src = f.src; alt = f.alt;
+    }
+    var capa = el('div', 'b-fondo', ctx.int), im = document.createElement('img');
+    im.src = src; im.alt = ''; im.setAttribute('aria-hidden', 'true'); capa.appendChild(im);
+  }
   /* ---------- BR-007 Cascada: columna de tarjetas inclinadas sobre un texto gigante ----------
      Cada paso (medido fotograma a fotograma sobre la referencia):
        1. amago: las tarjetas bajan un poco y el texto sube;
@@ -353,6 +367,7 @@
     return u < .22 ? sine((u - .06) / .16) : 1 - sine((u - .22) / .28);
   }
   PIEZAS.cascada = function (ctx) {
+    ponerFondo(ctx);
     var modo = ctx.root.getAttribute('data-modo') || 'auto';
     var ciclo = ctx.num('data-cambio', 1.47) * 1000, dur = Math.min(ciclo, 1470);
     var palabras = (ctx.root.getAttribute('data-texto') || 'Llevant|Ponent').split('|').map(function (s) { return s.trim(); }).filter(Boolean);
@@ -438,6 +453,7 @@
 
   /* ---------- BR-008 Rodillo: tambor vertical, la del centro queda plana ---------- */
   PIEZAS.rodillo = function (ctx) {
+    ponerFondo(ctx);
     var pausa = ctx.num('data-pausa', .9) * 1000, cambio = ctx.num('data-cambio', .7) * 1000;
     var lista = repetir(ctx.fotos, 8), N = lista.length, A = 38; // grados entre tarjeta y tarjeta
     var cartas = lista.map(function (f) { return tarjeta(f, ctx.int); });

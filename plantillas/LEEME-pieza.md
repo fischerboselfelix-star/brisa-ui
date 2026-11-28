@@ -57,6 +57,8 @@ Están en el `<div class="brisa …">` del código:
 | `data-pausa`, `data-cambio`, `data-velocidad` | Ritmo de la animación | segundos, píxeles o grados por segundo |
 | `data-texto` | Solo Cascada: las palabras del fondo, separadas por `\|` | `Tu marca\|Tu ciudad` |
 | `--b-texto` | Solo Cascada: color del texto del fondo | `#0b0b0b` |
+| `data-fondo` | Solo Cascada y Rodillo: pone una foto de fondo. `primera` usa la primera de la galería | `primera` |
+| `--b-fondo-velo` | Color que aclara u oscurece la foto de fondo | `rgba(0,0,0,.35)` |
 
 ## Si no se mueve
 
